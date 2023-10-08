@@ -7,8 +7,8 @@ llvmPackages_14.stdenv.mkDerivation {
   version = "unstable-2023-10-08";
   nativeBuildInputs = [ cmake ninja python3 glibc_multi llvmPackages_14.bintools ];
   preConfigure = ''
-    cmakeFlagsArray+=("-DCMAKE_C_FLAGS=-L${rv32-musl}/lib -nodefaultlibs -fno-exceptions -mno-relax -Wno-macro-redefined -fPIC")
-    cmakeFlagsArray+=("-DCMAKE_CXX_FLAGS=-L${rv32-musl}/lib -nodefaultlibs -fno-exceptions -mno-relax -Wno-macro-redefined -fPIC")
+    cmakeFlagsArray+=("-DCMAKE_C_FLAGS=-I${rv32-musl}/include -nodefaultlibs -fno-exceptions -mno-relax -Wno-macro-redefined -fPIC")
+    cmakeFlagsArray+=("-DCMAKE_CXX_FLAGS=-I${rv32-musl}/include -nodefaultlibs -fno-exceptions -mno-relax -Wno-macro-redefined -fPIC")
   '';
   cmakeFlags = [
     "-DLLVM_ENABLE_RUNTIMES=libcxx;libcxxabi;libunwind"
@@ -47,6 +47,7 @@ llvmPackages_14.stdenv.mkDerivation {
     "-DLIBUNWIND_ENABLE_THREADS=OFF"
     "-DLIBUNWIND_INCLUDE_TESTS=OFF"
     "-DLIBUNWIND_REMEMBER_HEAP_ALLOC=ON"
+    "-DLIBUNWIND_ENABLE_ASSERSION=OFF"
 
     "-Wno-dev"
   ];
