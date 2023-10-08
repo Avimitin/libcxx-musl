@@ -1,5 +1,4 @@
-{ llvmSrc, llvmPackages_14, cmake, python3,  ninja, rv32-musl }:
-
+{ llvmSrc, llvmPackages_14, cmake, python3, ninja, rv32-musl, rv32-clang }:
 llvmPackages_14.stdenv.mkDerivation {
   sourceRoot = "${llvmSrc.name}/runtimes";
   pname = "rv32-libcxx";
@@ -25,8 +24,8 @@ llvmPackages_14.stdenv.mkDerivation {
     "-DCMAKE_C_COMPILER_WORKS=ON"
     "-DCMAKE_CXX_COMPILER_WORKS=ON"
 
-    "-DCMAKE_C_COMPILER=/nix/store/mb71f22xl992y288wb1p7v5z6blqj10k-clang-14.0.6/bin/clang"
-    "-DCMAKE_CXX_COMPILER=/nix/store/mb71f22xl992y288wb1p7v5z6blqj10k-clang-14.0.6/bin/clang++"
+    "-DCMAKE_C_COMPILER=${rv32-clang}/bin/rv32-clang"
+    "-DCMAKE_CXX_COMPILER=${rv32-clang}/bin/rv32-clang++"
 
     "-DLIBCXX_ENABLE_SHARED=OFF"
     "-DLIBCXX_ENABLE_THREADS=OFF"
@@ -52,8 +51,5 @@ llvmPackages_14.stdenv.mkDerivation {
 
     "-Wno-dev"
   ];
-  env = {
-    NIX_DEBUG = 1;
-  };
 }
 
