@@ -1,14 +1,14 @@
-{ llvmSrc, llvmPackages_14, cmake, python3, glibc_multi, ninja,  rv32-musl  }:
+{ llvmSrc, llvmPackages_14, cmake, python3,  ninja, rv32-musl }:
 
 llvmPackages_14.stdenv.mkDerivation {
   sourceRoot = "${llvmSrc.name}/runtimes";
   pname = "rv32-libcxx";
   src = llvmSrc;
   version = "unstable-2023-10-08";
-  nativeBuildInputs = [ cmake ninja python3 glibc_multi llvmPackages_14.bintools ];
+  nativeBuildInputs = [ cmake ninja python3 llvmPackages_14.bintools ];
   preConfigure = ''
-    cmakeFlagsArray+=("-DCMAKE_C_FLAGS=-I${rv32-musl}/include -nodefaultlibs -fno-exceptions -mno-relax -Wno-macro-redefined -fPIC")
-    cmakeFlagsArray+=("-DCMAKE_CXX_FLAGS=-I${rv32-musl}/include -nodefaultlibs -fno-exceptions -mno-relax -Wno-macro-redefined -fPIC")
+    cmakeFlagsArray+=("-DCMAKE_C_FLAGS=-w -nostdlib -nostdinc -I${rv32-musl}/include -nodefaultlibs -fno-exceptions -mno-relax -Wno-macro-redefined -fPIC -Wnoundef")
+    cmakeFlagsArray+=("-DCMAKE_CXX_FLAGS=-w -nostdlib -nostdinc -I${rv32-musl}/include -nodefaultlibs -fno-exceptions -mno-relax -Wno-macro-redefined -fPIC")
   '';
   cmakeFlags = [
     "-DLLVM_ENABLE_RUNTIMES=libcxx;libcxxabi;libunwind"
@@ -25,8 +25,8 @@ llvmPackages_14.stdenv.mkDerivation {
     "-DCMAKE_C_COMPILER_WORKS=ON"
     "-DCMAKE_CXX_COMPILER_WORKS=ON"
 
-    "-DCMAKE_C_COMPILER=clang"
-    "-DCMAKE_CXX_COMPILER=clang++"
+    "-DCMAKE_C_COMPILER=/nix/store/mb71f22xl992y288wb1p7v5z6blqj10k-clang-14.0.6/bin/clang"
+    "-DCMAKE_CXX_COMPILER=/nix/store/mb71f22xl992y288wb1p7v5z6blqj10k-clang-14.0.6/bin/clang++"
 
     "-DLIBCXX_ENABLE_SHARED=OFF"
     "-DLIBCXX_ENABLE_THREADS=OFF"
@@ -38,6 +38,7 @@ llvmPackages_14.stdenv.mkDerivation {
 
     "-DLIBCXXABI_ENABLE_SHARED=OFF"
     "-DLIBCXXABI_ENABLE_EXCEPTIONS=OFF"
+    "-DLIBCXXABI_USE_LLVM_UNWINDER=ON"
     "-DLIBCXXABI_ENABLE_STATIC_UNWINDER=ON"
     "-DLIBCXXABI_ENABLE_THREADS=OFF"
     "-DLIBCXXABI_BAREMETAL=ON"
@@ -51,5 +52,8 @@ llvmPackages_14.stdenv.mkDerivation {
 
     "-Wno-dev"
   ];
+  env = {
+    NIX_DEBUG = 1;
+  };
 }
 
