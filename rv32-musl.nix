@@ -3,10 +3,10 @@ let
   pname = "musl";
   version = "a167b20fd395a45603b2d36cbf96dcb99ccedd60";
   src = fetchFromGitHub {
-    owner = "Avimitin";
-    repo = "musl-baremetal";
-    rev = "12c3bf03432b2309c3c386cd007f863f0c888cd6";
-    sha256 = "sha256-SppibMlca3EdTVQbif30MweZ44UhVF/i/rC0KfV96cI=";
+    owner = "sequencer";
+    repo = "musl";
+    rev = "a167b20fd395a45603b2d36cbf96dcb99ccedd60";
+    sha256 = "sha256-kFOTlJ5ka5h694EBbwNkM5TLHlFg6uJsY7DK5ImQ8mY=";
   };
 in
 llvmPackages_14.stdenv.mkDerivation {

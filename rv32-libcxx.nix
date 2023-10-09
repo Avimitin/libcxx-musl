@@ -1,14 +1,38 @@
-{ llvmSrc, llvmPackages_14, cmake, python3, ninja, rv32-musl, rv32-clang }:
+{ llvmSrc, llvmPackages_14, cmake, python3, ninja, rv32-musl }:
+let
+  # The default clang have a nix provided wrapper, which will unexpectedly link libraries to nix provided glibc.
+  clang-unwrapped = llvmPackages_14.clang-unwrapped;
+in
 llvmPackages_14.stdenv.mkDerivation {
-  sourceRoot = "${llvmSrc.name}/runtimes";
   pname = "rv32-libcxx";
   src = llvmSrc;
   version = "unstable-2023-10-08";
   nativeBuildInputs = [ cmake ninja python3 llvmPackages_14.bintools ];
+
+  # -D_GNU_SOURCE is a really hacky way to force musl headers export those filesystem and syscall symbols while
+  # building with flag -nostdlib.
   preConfigure = ''
-    cmakeFlagsArray+=("-DCMAKE_C_FLAGS=-w -nostdlib -nostdinc -I${rv32-musl}/include -nodefaultlibs -fno-exceptions -mno-relax -Wno-macro-redefined -fPIC -Wnoundef")
-    cmakeFlagsArray+=("-DCMAKE_CXX_FLAGS=-w -nostdlib -nostdinc -I${rv32-musl}/include -nodefaultlibs -fno-exceptions -mno-relax -Wno-macro-redefined -fPIC")
+    __compiler_flags=(
+      -D_GNU_SOURCE
+      -w
+      -nostdlib
+      -nostdinc
+      -nodefaultlibs
+      -I${rv32-musl}/include
+      -fno-exceptions
+      -mno-relax
+      -Wno-macro-redefined
+      -fPIC
+      -Wnoundef
+    )
+    __compiler_flags="''${__compiler_flags[@]}"
+    cmakeFlagsArray+=(
+      -DCMAKE_C_FLAGS="$__compiler_flags"
+      -DCMAKE_CXX_FLAGS="$__compiler_flags"
+    )
   '';
+
+  cmakeDir = "../runtimes";
   cmakeFlags = [
     "-DLLVM_ENABLE_RUNTIMES=libcxx;libcxxabi;libunwind"
     "-DCMAKE_BUILD_TYPE=Release"
@@ -24,8 +48,8 @@ llvmPackages_14.stdenv.mkDerivation {
     "-DCMAKE_C_COMPILER_WORKS=ON"
     "-DCMAKE_CXX_COMPILER_WORKS=ON"
 
-    "-DCMAKE_C_COMPILER=${rv32-clang}/bin/rv32-clang"
-    "-DCMAKE_CXX_COMPILER=${rv32-clang}/bin/rv32-clang++"
+    "-DCMAKE_C_COMPILER=${clang-unwrapped}/bin/clang"
+    "-DCMAKE_CXX_COMPILER=${clang-unwrapped}/bin/clang++"
 
     "-DLIBCXX_ENABLE_SHARED=OFF"
     "-DLIBCXX_ENABLE_THREADS=OFF"
